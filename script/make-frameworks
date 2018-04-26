@@ -59,11 +59,11 @@ touch Frameworks/libevent_openssl.framework/Headers/dummy.h
 lipo -create -output Frameworks/libevent_openssl.framework/libevent_openssl    \
   MK_DIST/iphonesimulator/x86_64/libevent-2.1.8-2/lib/libevent_openssl.a
 
-# measurement_kit (copying the simulator's ffi.h since ffi.h is portable)
+# measurement_kit (copying the simulator's headers since they're all portable)
 install -d Frameworks/measurement_kit.framework
 install -d Frameworks/libmeasurement_kit.framework/Headers
-install -d Frameworks/libmeasurement_kit.framework/Headers/include/measurement_kit
-install -m644 MK_DIST/iphonesimulator/x86_64/measurement_kit-0.9.0-alpha-2/include/measurement_kit/ffi.h Frameworks/libmeasurement_kit.framework/Headers/include/measurement_kit
+cp -R MK_DIST/iphonesimulator/x86_64/measurement_kit-0.9.0-alpha-2/include/    \
+  Frameworks/libmeasurement_kit.framework/Headers/include
 lipo -create -output Frameworks/measurement_kit.framework/measurement_kit      \
   MK_DIST/iphonesimulator/x86_64/measurement_kit-0.9.0-alpha-2/lib/libmeasurement_kit.a
 
