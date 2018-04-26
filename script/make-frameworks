@@ -1,0 +1,65 @@
+#!/bin/sh
+set -e
+ROOTDIR=$(cd $(dirname $0)/../ && pwd -P)
+
+set -x
+rm -rf MK_DIST
+
+# iphonesimulator/x86_64
+./pkgbuild/script/install/install testing/iphonesimulator-x86_64-geoip-1.6.12-2
+./pkgbuild/script/install/install testing/iphonesimulator-x86_64-libevent-2.1.8-2
+./pkgbuild/script/install/install testing/iphonesimulator-x86_64-libressl-2.6.4-2
+./pkgbuild/script/install/install testing/iphonesimulator-x86_64-measurement_kit-0.9.0-alpha-2
+
+rm -rf Frameworks
+
+# libGeoIP
+install -d Frameworks/libGeoIP.framework
+install -d Frameworks/libGeoIP.framework/Headers
+touch Frameworks/libGeoIP.framework/Headers/dummy.h
+lipo -create -output Frameworks/libGeoIP.framework/libGeoIP                    \
+  MK_DIST/iphonesimulator/x86_64/geoip-1.6.12-2/lib/libGeoIP.a
+
+# libcrypto
+install -d Frameworks/libcrypto.framework
+install -d Frameworks/libcrypto.framework/Headers
+touch Frameworks/libcrypto.framework/Headers/dummy.h
+lipo -create -output Frameworks/libcrypto.framework/libcrypto                  \
+  MK_DIST/iphonesimulator/x86_64/libressl-2.6.4-2/lib/libcrypto.a
+
+# libssl
+install -d Frameworks/libssl.framework
+install -d Frameworks/libssl.framework/Headers
+touch Frameworks/libssl.framework/Headers/dummy.h
+lipo -create -output Frameworks/libssl.framework/libssl                        \
+  MK_DIST/iphonesimulator/x86_64/libressl-2.6.4-2/lib/libssl.a
+
+# libevent
+install -d Frameworks/libevent.framework
+install -d Frameworks/libevent.framework/Headers
+touch Frameworks/libevent.framework/Headers/dummy.h
+lipo -create -output Frameworks/libevent.framework/libevent                    \
+  MK_DIST/iphonesimulator/x86_64/libevent-2.1.8-2/lib/libevent.a
+
+# libevent_pthreads
+install -d Frameworks/libevent_pthreads.framework
+install -d Frameworks/libevent_pthreads.framework/Headers
+touch Frameworks/libevent_pthreads.framework/Headers/dummy.h
+lipo -create -output Frameworks/libevent_pthreads.framework/libevent_pthreads  \
+  MK_DIST/iphonesimulator/x86_64/libevent-2.1.8-2/lib/libevent_pthreads.a
+
+# libevent_openssl
+install -d Frameworks/libevent_openssl.framework
+install -d Frameworks/libevent_openssl.framework/Headers
+touch Frameworks/libevent_openssl.framework/Headers/dummy.h
+lipo -create -output Frameworks/libevent_openssl.framework/libevent_openssl    \
+  MK_DIST/iphonesimulator/x86_64/libevent-2.1.8-2/lib/libevent_openssl.a
+
+# measurement_kit (copying the simulator's ffi.h since ffi.h is portable)
+install -d Frameworks/measurement_kit.framework
+install -d Frameworks/libmeasurement_kit.framework/Headers
+install -d Frameworks/libmeasurement_kit.framework/Headers/include/measurement_kit
+install -m644 MK_DIST/iphonesimulator/x86_64/measurement_kit-0.9.0-alpha-2/include/measurement_kit/ffi.h Frameworks/libmeasurement_kit.framework/Headers/include/measurement_kit
+lipo -create -output Frameworks/measurement_kit.framework/measurement_kit      \
+  MK_DIST/iphonesimulator/x86_64/measurement_kit-0.9.0-alpha-2/lib/libmeasurement_kit.a
+
