@@ -61,8 +61,8 @@ lipo -create -output Frameworks/libevent_openssl.framework/libevent_openssl    \
 
 # measurement_kit (copying the simulator's headers since they're all portable)
 install -d Frameworks/measurement_kit.framework
-install -d Frameworks/libmeasurement_kit.framework/Headers
-cp -Rp MK_DIST/iphonesimulator/x86_64/measurement_kit-0.9.0-alpha-2/include/measurement_kit Frameworks/libmeasurement_kit.framework/Headers
+install -d Frameworks/measurement_kit.framework/Headers
+cp -Rp MK_DIST/iphonesimulator/x86_64/measurement_kit-0.9.0-alpha-2/include/measurement_kit Frameworks/measurement_kit.framework/Headers
 lipo -create -output Frameworks/measurement_kit.framework/measurement_kit      \
   MK_DIST/iphonesimulator/x86_64/measurement_kit-0.9.0-alpha-2/lib/libmeasurement_kit.a
 
