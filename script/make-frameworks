@@ -5,6 +5,10 @@ ROOTDIR=$(cd $(dirname $0)/../ && pwd -P)
 set -x
 rm -rf MK_DIST
 
+if [ ! -x ./pkgbuild/script/install/install ]; then
+  git submodule update --init
+fi
+
 # iphonesimulator/x86_64
 ./pkgbuild/script/install/install testing/iphonesimulator-x86_64-geoip-1.6.12-2
 ./pkgbuild/script/install/install testing/iphonesimulator-x86_64-libevent-2.1.8-2
