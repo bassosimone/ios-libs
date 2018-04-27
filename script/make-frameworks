@@ -9,59 +9,39 @@ if [ ! -x ./pkgbuild/script/install/install ]; then
   git submodule update --init
 fi
 
-# iphonesimulator/x86_64
+# x86_64
+
 ./pkgbuild/script/install/install testing/iphonesimulator-x86_64-geoip-1.6.12-2
 ./pkgbuild/script/install/install testing/iphonesimulator-x86_64-libevent-2.1.8-2
 ./pkgbuild/script/install/install testing/iphonesimulator-x86_64-libressl-2.6.4-2
 ./pkgbuild/script/install/install testing/iphonesimulator-x86_64-measurement_kit-0.9.0-alpha-2
+./pkgbuild/script/install/install testing/iphonesimulator-x86_64-api-objective-c-f9a3bd31a39e90fa656e8e55e2e7632d2fb27606-1
+
+# CombinedLibs
+
+rm -rf CombinedLibs
+install -d CombinedLibs
+
+## x86_64
+
+/usr/bin/libtool -static -o CombinedLibs/x86_64.a                              \
+  MK_DIST/iphonesimulator/x86_64/geoip-1.6.12-2/lib/libGeoIP.a                 \
+  MK_DIST/iphonesimulator/x86_64/libressl-2.6.4-2/lib/libcrypto.a              \
+  MK_DIST/iphonesimulator/x86_64/libressl-2.6.4-2/lib/libssl.a                 \
+  MK_DIST/iphonesimulator/x86_64/libevent-2.1.8-2/lib/libevent.a               \
+  MK_DIST/iphonesimulator/x86_64/libevent-2.1.8-2/lib/libevent_pthreads.a      \
+  MK_DIST/iphonesimulator/x86_64/libevent-2.1.8-2/lib/libevent_openssl.a       \
+  MK_DIST/iphonesimulator/x86_64/measurement_kit-0.9.0-alpha-2/lib/libmeasurement_kit.a \
+  MK_DIST/iphonesimulator/x86_64/api-objective-c-f9a3bd31a39e90fa656e8e55e2e7632d2fb27606-1/lib/libmeasurementkit-objectivec.a
+
+# Frameworks
+#
+# Note: using the x86_64 headers because headers are MI.
 
 rm -rf Frameworks
-
-# libGeoIP
-install -d Frameworks/libGeoIP.framework
-install -d Frameworks/libGeoIP.framework/Headers
-touch Frameworks/libGeoIP.framework/Headers/dummy.h
-lipo -create -output Frameworks/libGeoIP.framework/libGeoIP                    \
-  MK_DIST/iphonesimulator/x86_64/geoip-1.6.12-2/lib/libGeoIP.a
-
-# libcrypto
-install -d Frameworks/libcrypto.framework
-install -d Frameworks/libcrypto.framework/Headers
-touch Frameworks/libcrypto.framework/Headers/dummy.h
-lipo -create -output Frameworks/libcrypto.framework/libcrypto                  \
-  MK_DIST/iphonesimulator/x86_64/libressl-2.6.4-2/lib/libcrypto.a
-
-# libssl
-install -d Frameworks/libssl.framework
-install -d Frameworks/libssl.framework/Headers
-touch Frameworks/libssl.framework/Headers/dummy.h
-lipo -create -output Frameworks/libssl.framework/libssl                        \
-  MK_DIST/iphonesimulator/x86_64/libressl-2.6.4-2/lib/libssl.a
-
-# libevent
-install -d Frameworks/libevent.framework
-install -d Frameworks/libevent.framework/Headers
-touch Frameworks/libevent.framework/Headers/dummy.h
-lipo -create -output Frameworks/libevent.framework/libevent                    \
-  MK_DIST/iphonesimulator/x86_64/libevent-2.1.8-2/lib/libevent.a
-
-# libevent_pthreads
-install -d Frameworks/libevent_pthreads.framework
-install -d Frameworks/libevent_pthreads.framework/Headers
-touch Frameworks/libevent_pthreads.framework/Headers/dummy.h
-lipo -create -output Frameworks/libevent_pthreads.framework/libevent_pthreads  \
-  MK_DIST/iphonesimulator/x86_64/libevent-2.1.8-2/lib/libevent_pthreads.a
-
-# libevent_openssl
-install -d Frameworks/libevent_openssl.framework
-install -d Frameworks/libevent_openssl.framework/Headers
-touch Frameworks/libevent_openssl.framework/Headers/dummy.h
-lipo -create -output Frameworks/libevent_openssl.framework/libevent_openssl    \
-  MK_DIST/iphonesimulator/x86_64/libevent-2.1.8-2/lib/libevent_openssl.a
-
-# measurement_kit (copying the simulator's headers since they're all portable)
-install -d Frameworks/measurement_kit.framework
-cp -Rp MK_DIST/iphonesimulator/x86_64/measurement_kit-0.9.0-alpha-2/include/measurement_kit Frameworks/measurement_kit.framework/Headers
-lipo -create -output Frameworks/measurement_kit.framework/measurement_kit      \
-  MK_DIST/iphonesimulator/x86_64/measurement_kit-0.9.0-alpha-2/lib/libmeasurement_kit.a
-
+install -d Frameworks/MeasurementKit.framework
+lipo -create -output Frameworks/MeasurementKit.framework/MeasurementKit        \
+  CombinedLibs/x86_64.a
+install -d Frameworks/MeasurementKit.framework/Headers/MeasurementKit
+install -m644 MK_DIST/iphonesimulator/x86_64/api-objective-c-f9a3bd31a39e90fa656e8e55e2e7632d2fb27606-1/include/*.h \
+  Frameworks/MeasurementKit.framework/Headers/MeasurementKit
