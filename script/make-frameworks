@@ -39,9 +39,9 @@ install -d CombinedLibs
 # Note: using the x86_64 headers because headers are MI.
 
 rm -rf Frameworks
-install -d Frameworks/MeasurementKit.framework
-lipo -create -output Frameworks/MeasurementKit.framework/MeasurementKit        \
+install -d Frameworks/measurement_kit.framework
+lipo -create -output Frameworks/measurement_kit.framework/measurement_kit      \
   CombinedLibs/x86_64.a
-install -d Frameworks/MeasurementKit.framework/Headers/MeasurementKit
+install -d Frameworks/measurement_kit.framework/Headers/measurement_kit
 install -m644 MK_DIST/iphonesimulator/x86_64/api-objective-c-f9a3bd31a39e90fa656e8e55e2e7632d2fb27606-1/include/*.h \
-  Frameworks/MeasurementKit.framework/Headers/MeasurementKit
+  Frameworks/measurement_kit.framework/Headers
