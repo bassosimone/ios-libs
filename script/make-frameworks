@@ -1,47 +1,90 @@
 #!/bin/sh
-set -e
+set -ex
 ROOTDIR=$(cd $(dirname $0)/../ && pwd -P)
 
-set -x
 rm -rf MK_DIST
 
-if [ ! -x ./pkgbuild/script/install/install ]; then
+if [ ! -x ./script/build/unix/install ]; then
   git submodule update --init
 fi
 
-# x86_64
+GEOIP_VERSION=1.6.12-2
+LIBEVENT_VERSION=2.1.8-2
+LIBRESSL_VERSION=2.6.4-2
+MK_VERSION=0.9.0-alpha-2
 
-./pkgbuild/script/install/install testing/iphonesimulator-x86_64-geoip-1.6.12-2
-./pkgbuild/script/install/install testing/iphonesimulator-x86_64-libevent-2.1.8-2
-./pkgbuild/script/install/install testing/iphonesimulator-x86_64-libressl-2.6.4-2
-./pkgbuild/script/install/install testing/iphonesimulator-x86_64-measurement_kit-0.9.0-alpha-2
-./pkgbuild/script/install/install testing/iphonesimulator-x86_64-api-objective-c-0.1.0-1
+# install dependencies
 
-# CombinedLibs
+./script/build/unix/install ios-geoip-api-c-$GEOIP_VERSION
+./script/build/unix/install ios-libevent-$LIBEVENT_VERSION
+./script/build/unix/install ios-libressl-$LIBRESSL_VERSION
+./script/build/unix/install ios-measurement-kit-$MK_VERSION
 
-rm -rf CombinedLibs
-install -d CombinedLibs
+# libGeoIP
+rm -rf Frameworks/libGeoIP.framework
+install -d Frameworks/libGeoIP.framework/Headers
+/usr/bin/lipo -create -output Frameworks/libGeoIP.framework/libGeoIP           \
+  MK_DIST/ios/geoip-api-c/$GEOIP_VERSION/arm64/lib/libGeoIP.a                  \
+  MK_DIST/ios/geoip-api-c/$GEOIP_VERSION/armv7s/lib/libGeoIP.a                 \
+  MK_DIST/ios/geoip-api-c/$GEOIP_VERSION/x86_64/lib/libGeoIP.a
+touch Frameworks/libGeoIP.framework/Headers/make_cocoapods_happy.h
 
-## x86_64
+# libcrypto
+rm -rf Frameworks/libcrypto.framework
+install -d Frameworks/libcrypto.framework/Headers
+/usr/bin/lipo -create -output Frameworks/libcrypto.framework/libcrypto         \
+  MK_DIST/ios/libressl/$LIBRESSL_VERSION/arm64/lib/libcrypto.a                 \
+  MK_DIST/ios/libressl/$LIBRESSL_VERSION/armv7s/lib/libcrypto.a                \
+  MK_DIST/ios/libressl/$LIBRESSL_VERSION/x86_64/lib/libcrypto.a
+touch Frameworks/libcrypto.framework/Headers/make_cocoapods_happy.h
 
-/usr/bin/libtool -static -o CombinedLibs/x86_64.a                              \
-  MK_DIST/iphonesimulator/x86_64/geoip-1.6.12-2/lib/libGeoIP.a                 \
-  MK_DIST/iphonesimulator/x86_64/libressl-2.6.4-2/lib/libcrypto.a              \
-  MK_DIST/iphonesimulator/x86_64/libressl-2.6.4-2/lib/libssl.a                 \
-  MK_DIST/iphonesimulator/x86_64/libevent-2.1.8-2/lib/libevent.a               \
-  MK_DIST/iphonesimulator/x86_64/libevent-2.1.8-2/lib/libevent_pthreads.a      \
-  MK_DIST/iphonesimulator/x86_64/libevent-2.1.8-2/lib/libevent_openssl.a       \
-  MK_DIST/iphonesimulator/x86_64/measurement_kit-0.9.0-alpha-2/lib/libmeasurement_kit.a \
-  MK_DIST/iphonesimulator/x86_64/api-objective-c-0.1.0-1/lib/libmeasurementkit-objectivec.a
+# libssl
+rm -rf Frameworks/libssl.framework
+install -d Frameworks/libssl.framework/Headers
+/usr/bin/lipo -create -output Frameworks/libssl.framework/libssl               \
+  MK_DIST/ios/libressl/$LIBRESSL_VERSION/arm64/lib/libssl.a                    \
+  MK_DIST/ios/libressl/$LIBRESSL_VERSION/armv7s/lib/libssl.a                   \
+  MK_DIST/ios/libressl/$LIBRESSL_VERSION/x86_64/lib/libssl.a
+touch Frameworks/libssl.framework/Headers/make_cocoapods_happy.h
 
-# Frameworks
+# libevent
+rm -rf Frameworks/libevent.framework
+install -d Frameworks/libevent.framework/Headers
+/usr/bin/lipo -create -output Frameworks/libevent.framework/libevent           \
+  MK_DIST/ios/libevent/$LIBEVENT_VERSION/arm64/lib/libevent.a                  \
+  MK_DIST/ios/libevent/$LIBEVENT_VERSION/armv7s/lib/libevent.a                 \
+  MK_DIST/ios/libevent/$LIBEVENT_VERSION/x86_64/lib/libevent.a
+touch Frameworks/libevent.framework/Headers/make_cocoapods_happy.h
+
+# libevent_pthreads
+rm -rf Frameworks/libevent_pthreads.framework
+install -d Frameworks/libevent_pthreads.framework/Headers
+/usr/bin/lipo -create -output                                                  \
+    Frameworks/libevent_pthreads.framework/libevent_pthreads                   \
+  MK_DIST/ios/libevent/$LIBEVENT_VERSION/arm64/lib/libevent_pthreads.a         \
+  MK_DIST/ios/libevent/$LIBEVENT_VERSION/armv7s/lib/libevent_pthreads.a        \
+  MK_DIST/ios/libevent/$LIBEVENT_VERSION/x86_64/lib/libevent_pthreads.a
+touch Frameworks/libevent_pthreads.framework/Headers/make_cocoapods_happy.h
+
+# libevent_openssl
+rm -rf Frameworks/libevent_openssl.framework
+install -d Frameworks/libevent_openssl.framework/Headers
+/usr/bin/lipo -create -output                                                  \
+    Frameworks/libevent_openssl.framework/libevent_openssl                     \
+  MK_DIST/ios/libevent/$LIBEVENT_VERSION/arm64/lib/libevent_openssl.a          \
+  MK_DIST/ios/libevent/$LIBEVENT_VERSION/armv7s/lib/libevent_openssl.a         \
+  MK_DIST/ios/libevent/$LIBEVENT_VERSION/x86_64/lib/libevent_openssl.a
+touch Frameworks/libevent_openssl.framework/Headers/make_cocoapods_happy.h
+
+# measurement_kit
 #
 # Note: using the x86_64 headers because headers are MI.
-
-rm -rf Frameworks
-install -d Frameworks/measurement_kit.framework
-lipo -create -output Frameworks/measurement_kit.framework/measurement_kit      \
-  CombinedLibs/x86_64.a
-install -d Frameworks/measurement_kit.framework/Headers
-install -m644 MK_DIST/iphonesimulator/x86_64/api-objective-c-0.1.0-1/include/*.h \
+rm -rf Frameworks/measurement_kit.framework
+install -d Frameworks/measurement_kit.framework # note: different from above
+/usr/bin/lipo -create -output                                                  \
+    Frameworks/measurement_kit.framework/measurement_kit                       \
+  MK_DIST/ios/measurement-kit/$MK_VERSION/arm64/lib/libmeasurement_kit.a       \
+  MK_DIST/ios/measurement-kit/$MK_VERSION/armv7s/lib/libmeasurement_kit.a      \
+  MK_DIST/ios/measurement-kit/$MK_VERSION/x86_64/lib/libmeasurement_kit.a
+cp -Rp MK_DIST/ios/measurement-kit/$MK_VERSION/x86_64/include/measurement_kit  \
   Frameworks/measurement_kit.framework/Headers

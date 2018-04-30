@@ -1,4 +1,4 @@
+*.tar.gz
 .DS_Store
-/CombinedLibs
 /Frameworks
 /MK_DIST
