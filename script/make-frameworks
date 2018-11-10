@@ -8,13 +8,4 @@ if [ ! -x ./script/build/unix/install ]; then
   git submodule update --init
 fi
 
-# install dependencies
-
-./script/build/unix/install `./script/build/unix/all-deps.sh ios-`
-./script/build/unix/install ios-measurement-kit
-
-# make frameworks
-
-./script/build/unix/framework-ios `./script/build/unix/all-deps.sh`
-./script/build/unix/framework-ios measurement-kit
-mv Framework Frameworks
+./script/build/unix/make-ios-frameworks
